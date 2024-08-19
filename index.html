@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative To-Do List</title>
+
+    <!-- Material Design CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            overflow: hidden;
+        }
+        h2 {
+            margin: 0;
+            padding: 16px 0;
+            text-align: center;
+            font-size: 1.5rem;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 16px;
+        }
+        li {
+            padding: 16px;
+            margin: 8px 0;
+            background: #f1f1f1;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1.2rem;
+        }
+        li:hover {
+            background: #e0e0e0;
+        }
+        li.completed {
+            text-decoration: line-through;
+            color: grey;
+        }
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: #6200ea;
+            color: white;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 100;
+        }
+        .fab:hover {
+            background-color: #3700b3;
+        }
+        .fab i {
+            font-size: 24px;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-header {
+            margin-bottom: 16px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .modal-input {
+            margin-bottom: 16px;
+        }
+        .add-task-btn {
+            width: 100%;
+            height: 48px;
+            font-size: 1rem;
+            margin-top: 8px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>To-Do List</h2>
+        <ul id="taskList">
+            <!-- Tasks will be dynamically added here -->
+        </ul>
+        <button class="mdc-button mdc-button--raised fab" id="fab">
+            <i class="material-icons">add</i>
+        </button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
+
+    <!-- Firebase Initialization -->
+    <script>
+     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD4WeJIzQR3jn0pwl_skmPdko6RzVlSSM8",
+  authDomain: "t-o-do.firebaseapp.com",
+  projectId: "t-o-do",
+  storageBucket: "t-o-do.appspot.com",
+  messagingSenderId: "405994575016",
+  appId: "1:405994575016:web:9f2b6feadfec2e525f9e9d",
+  measurementId: "G-CK9XG6VCG7"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Example tasks
+        const exampleTasks = [
+            "Wyprowadzic psa",
+            "posprzatac pokoj",
+            "Spakowac plecak na dzien jutrzejszy",
+            "przygotowac ubranie na jutro",
+            "umyc zeby",
+            "Scielic lozko",
+            "zrobic sniadanie do szkoly",
+            "pojscie na zakupy",
+            "wyrzucenie brodnych ubran"
+        ];
+
+        // Function to add example tasks to Firestore
+        function addExampleTasks() {
+            exampleTasks.forEach(task => {
+                db.collection('tasks').add({
+                    text: task,
+                    completed: false
+                }).catch(error => {
+                    console.error('Error adding task: ', error);
+                });
+            });
+        }
+
+        // Function to fetch and display tasks from Firestore
+        function fetchTasks() {
+            db.collection('tasks').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                const taskList = document.getElementById('taskList');
+                taskList.innerHTML = ''; // Clear existing tasks
+                snapshot.forEach(doc => {
+                    const task = doc.data();
+                    const li = document.createElement('li');
+                    li.textContent = task.text;
+                    li.classList.toggle('completed', task.completed);
+                    li.addEventListener('click', () => {
+                        db.collection('tasks').doc(doc.id).update({
+                            completed: !task.completed
+                        });
+                    });
+                    taskList.appendChild(li);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Material Design components
+            const buttons = document.querySelectorAll('.mdc-button');
+            buttons.forEach(button => mdc.ripple.MDCRipple.attachTo(button));
+
+            // Add example tasks to Firestore
+            addExampleTasks();
+
+            // Fetch and display tasks
+            fetchTasks();
+
+            document.getElementById('fab').addEventListener('click', function() {
+                window.location.href = 'new-task.html'; // Redirect to the new task page
+            });
+        });
+    </script>
+</body>
+</html>
