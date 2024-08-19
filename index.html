@@ -4,20 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collaborative To-Do List</title>
+    
+    <!-- Material Design Components -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@material/web@1.0.0-pre.13/dist/mdc-web.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/web@1.0.0-pre.13/dist/mdc-web.min.css">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
         .container {
             background: white;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
         }
         ul {
             list-style-type: none;
@@ -26,23 +35,27 @@
         li {
             padding: 10px;
             margin: 5px 0;
-            background: #e0e0e0;
+            background: #f1f1f1;
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
         }
         li.completed {
             text-decoration: line-through;
             color: grey;
+        }
+        mwc-button {
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Collaborative To-Do List</h2>
-        <input type="text" id="taskInput" placeholder="Add a new task">
-        <button onclick="addTask()">Add Task</button>
+        <mwc-textfield label="Add a new task" id="taskInput"></mwc-textfield>
+        <mwc-button raised label="Add Task" id="addTaskButton"></mwc-button>
         <ul id="taskList"></ul>
     </div>
 
@@ -51,16 +64,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database.js"></script>
 
     <script>
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyD4WeJIzQR3jn0pwl_skmPdko6RzVlSSM8",
-  authDomain: "t-o-do.firebaseapp.com",
-  projectId: "t-o-do",
-  storageBucket: "t-o-do.appspot.com",
-  messagingSenderId: "405994575016",
-  appId: "1:405994575016:web:9f2b6feadfec2e525f9e9d",
-};
-        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -82,12 +96,15 @@ const firebaseConfig = {
         });
 
         // Add a new task
-        function addTask() {
+        document.getElementById('addTaskButton').addEventListener('click', function() {
             const taskInput = document.getElementById('taskInput');
-            const task = { text: taskInput.value, completed: false };
-            tasksRef.push(task);
-            taskInput.value = '';
-        }
+            const taskText = taskInput.value.trim();
+            if (taskText !== "") {
+                const task = { text: taskText, completed: false };
+                tasksRef.push(task);
+                taskInput.value = ''; // Clear the input field
+            }
+        });
 
         // Toggle task completion
         function toggleTask(id, completed) {
