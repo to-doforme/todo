@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- iOS meta tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="To-Do List">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative To-Do List</title>
+
+    <!-- Material Design CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://images3.alphacoders.com/135/thumb-1920-1350069.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+        }
+        .main-content {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            overflow-y: auto;
+            padding: 16px;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.308);
+        }
+        .container {
+            background: rgba(255, 255, 255, 0);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0);
+            padding: 16px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 64px);
+        }
+        h2 {
+            margin: 0;
+            padding: 16px 0;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 16px;
+        }
+        li {
+            position: relative;
+            padding: 16px;
+            margin: 8px 0;
+            background: rgba(241, 241, 241, 0.8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+            font-size: 1.2rem;
+            overflow: hidden;
+            user-select: none;
+        }
+        li:hover {
+            background: rgba(224, 224, 224, 0.8);
+        }
+        li.completed {
+            text-decoration: line-through;
+            color: grey;
+        }
+        .delete-button {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            margin-left: -56px;
+            transition: margin 0.3s;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1;
+        }
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: #6200ea;
+            color: white;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 100;
+        }
+        .fab:hover {
+            background-color: #3700b3;
+        }
+        .fab i {
+            font-size: 24px;
+        }
+        /* Dark Theme Styles */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: url('https://images3.alphacoders.com/135/thumb-1920-1350069.jpeg') no-repeat center center fixed;
+                background-size: cover;
+            }
+            .main-content {
+                background: rgba(0, 0, 0, 0.308);
+            }
+            .container {
+                background: rgba(0, 0, 0, 0);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0);
+            }
+            li {
+                background: rgba(50, 50, 50, 0.8);
+            }
+            li:hover {
+                background: rgba(80, 80, 80, 0.8);
+            }
+            h2, li {
+                color: var(--text-color-dark);
+            }
+            .fab {
+                background-color: #bb86fc;
+            }
+            .fab:hover {
+                background-color: #3700b3;
+            }
+        }
+        :root {
+            --text-color: #000;
+            --text-color-dark: #fff;
+        }
+        /* Slide to delete styles for touch devices */
+        @supports (-webkit-overflow-scrolling: touch) {
+            li {
+                transition: transform 0.3s;
+            }
+            li.swiped {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="container">
+            <h2>To-Do List</h2>
+            <ul id="taskList">
+                <!-- Tasks will be dynamically added here -->
+            </ul>
+            <button class="mdc-button mdc-button--raised fab" id="addTaskFab">
+                <i class="material-icons">add</i>
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript to handle tasks and local storage -->
+    <script>
+        // Initialize example tasks if none exist in local storage
+        function initializeExampleTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            if (tasks.length === 0) {
+                const exampleTasks = [
+                    "Example"
+                ];
+                exampleTasks.forEach(task => tasks.push({ text: task, completed: false }));
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            }
+        }
+
+        // Function to fetch and display tasks from local storage
+        function fetchTasks() {
+            const taskList = document.getElementById('taskList');
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            taskList.innerHTML = ''; // Clear existing tasks
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.textContent = task.text;
+                li.classList.toggle('completed', task.completed);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'delete-button';
+                deleteButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTask(index);
+                });
+                li.appendChild(deleteButton);
+
+                li.addEventListener('click', () => {
+                    task.completed = !task.completed;
+                    localStorage.setItem('tasks', JSON.stringify(tasks));
+                    fetchTasks();
+                });
+
+                // Add swipe-to-delete functionality for touch devices
+                li.addEventListener('touchstart', handleTouchStart, false);
+                li.addEventListener('touchend', handleTouchEnd, false);
+
+                taskList.appendChild(li);
+            });
+        }
+
+        function deleteTask(index) {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.splice(index, 1);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            fetchTasks();
+        }
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function handleTouchStart(event) {
+            touchStartX = event.changedTouches[0].clientX;
+        }
+
+        function handleTouchEnd(event) {
+            touchEndX = event.changedTouches[0].clientX;
+            if (touchStartX - touchEndX > 100) {
+                const li = event.currentTarget;
+                li.classList.add('swiped');
+                const index = [...li.parentNode.children].indexOf(li);
+                deleteTask(index);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize example tasks
+            initializeExampleTasks();
+
+            // Fetch and display tasks
+            fetchTasks();
+
+            // Add event listener to Add Task FAB
+            document.getElementById('addTaskFab').addEventListener('click', function() {
+                window.location.href = 'new-task.html'; // Redirect to the new task page
+            });
+        });
+    </script>
+</body>
+</html>
