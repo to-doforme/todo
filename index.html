@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collaborative To-Do List</title>
     
-    <!-- Material Design Components -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@material/web@1.0.0-pre.13/dist/mdc-web.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/web@1.0.0-pre.13/dist/mdc-web.min.css">
+    <!-- Material Design CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
 
     <style>
         body {
@@ -46,7 +46,7 @@
             text-decoration: line-through;
             color: grey;
         }
-        mwc-button {
+        .mdc-button {
             width: 100%;
         }
     </style>
@@ -54,16 +54,29 @@
 <body>
     <div class="container">
         <h2>Collaborative To-Do List</h2>
-        <mwc-textfield label="Add a new task" id="taskInput"></mwc-textfield>
-        <mwc-button raised label="Add Task" id="addTaskButton"></mwc-button>
+        <div class="mdc-text-field mdc-text-field--outlined" style="width: 100%;">
+            <input type="text" id="taskInput" class="mdc-text-field__input" placeholder=" ">
+            <label class="mdc-floating-label" for="taskInput">Add a new task</label>
+            <div class="mdc-line-ripple"></div>
+        </div>
+        <button class="mdc-button mdc-button--raised" id="addTaskButton">
+            <span class="mdc-button__label">Add Task</span>
+        </button>
         <ul id="taskList"></ul>
     </div>
+
+    <!-- Material Design JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database.js"></script>
 
     <script>
+        // Initialize Material Design components
+        mdc.textField.MDCTextField.attachTo(document.querySelector('.mdc-text-field'));
+        mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
+
         // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
