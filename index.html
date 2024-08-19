@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collaborative To-Do List</title>
-    
-    <!-- Material Design CSS -->
+
+    <!-- Material Design Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
-    
+
     <style>
         /* Dark Mode Detection */
         body {
@@ -16,7 +17,7 @@
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background: url('https://images3.alphacoders.com/135/thumb-1920-1350069.jpeg') no-repeat center center fixed;
+            background: url('background.jpg') no-repeat center center fixed;
             background-size: cover;
             display: flex;
             justify-content: center;
@@ -41,7 +42,7 @@
             }
 
             body {
-                background: url('https://images3.alphacoders.com/135/thumb-1920-1350069.jpeg') no-repeat center center fixed;
+                background: url('dark-background.jpg') no-repeat center center fixed;
                 background-size: cover;
             }
         }
@@ -59,6 +60,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -68,6 +70,7 @@
             from {
                 opacity: 1;
             }
+
             to {
                 opacity: 0;
             }
@@ -83,6 +86,7 @@
                 transform: translateX(0);
                 opacity: 1;
             }
+
             to {
                 transform: translateX(-100%);
                 opacity: 0;
@@ -162,8 +166,36 @@
                 display: none;
             }
         }
+
+        /* Floating Action Button (FAB) */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: #6200ea;
+            color: white;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            background-color: #3700b3;
+        }
+
+        .fab i {
+            font-size: 24px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container fade-in">
         <h2>To-Do List</h2>
@@ -187,7 +219,7 @@
 
     <!-- JavaScript for Swipe-to-Delete and Page Transitions -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             document.body.classList.add("fade-in");
 
             const taskList = document.getElementById('taskList');
@@ -196,11 +228,11 @@
 
             Array.from(tasks).forEach(task => {
                 // Handle touch devices
-                task.addEventListener('touchstart', function(e) {
+                task.addEventListener('touchstart', function (e) {
                     startX = e.touches[0].clientX;
                 });
 
-                task.addEventListener('touchmove', function(e) {
+                task.addEventListener('touchmove', function (e) {
                     const touch = e.touches[0];
                     const change = touch.clientX - startX;
 
@@ -215,23 +247,23 @@
 
                 // Handle non-touch devices
                 const deleteBtn = task.querySelector('.delete-btn');
-                deleteBtn.addEventListener('click', function() {
+                deleteBtn.addEventListener('click', function () {
                     task.classList.add('slide-out-left');
                     setTimeout(() => task.remove(), 500);
                 });
 
-                task.addEventListener('mouseover', function() {
+                task.addEventListener('mouseover', function () {
                     deleteBtn.style.display = 'block';
                 });
 
-                task.addEventListener('mouseleave', function() {
+                task.addEventListener('mouseleave', function () {
                     deleteBtn.style.display = 'none';
                 });
             });
 
             const links = document.querySelectorAll("a");
             links.forEach(link => {
-                link.addEventListener("click", function(event) {
+                link.addEventListener("click", function (event) {
                     event.preventDefault();
                     const targetUrl = this.href;
                     document.body.classList.remove("fade-in");
@@ -242,4 +274,5 @@
         });
     </script>
 </body>
+
 </html>
