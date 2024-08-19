@@ -31,14 +31,16 @@
         :root {
             --bg-color: rgba(255, 255, 255, 0.8);
             --text-color: #000;
-            --delete-btn-bg: red;
+            --delete-btn-bg: grey;
+            --hover-color: rgba(0, 0, 0, 0.05);
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-color: rgba(0, 0, 0, 0.8);
+                --bg-color: rgba(0, 0, 0, 0.6);
                 --text-color: #fff;
-                --delete-btn-bg: #ff4444;
+                --delete-btn-bg: #757575;
+                --hover-color: rgba(255, 255, 255, 0.1);
             }
 
             body {
@@ -101,6 +103,7 @@
             border-radius: 16px;
             backdrop-filter: blur(10px);
             background-color: var(--bg-color);
+            transition: background-color 0.3s;
         }
 
         h2 {
@@ -135,7 +138,7 @@
         }
 
         li:hover {
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--hover-color);
         }
 
         li.completed {
