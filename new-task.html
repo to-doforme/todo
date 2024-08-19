@@ -3,53 +3,84 @@
 <!-- iOS meta tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="To-Do List">
+<meta name="apple-mobile-web-app-title" content="Collaborative To-Do List">
 <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-<head>
+
+    <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Task</title>
 
-    <!-- Material Design 3 CSS -->
+    <!-- Material Design CSS -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
 
     <style>
+        /* Page Transition Animations */
+        .fade-in {
+            animation: fadeIn 0.5s forwards;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
         body {
+            opacity: 0;
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
             background: url('https://images3.alphacoders.com/135/thumb-1920-1350069.jpeg') no-repeat center center fixed;
             background-size: cover;
             display: flex;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
             overflow: hidden;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-color);
+            color: #fff;
         }
+
         .container {
             width: 100%;
             max-width: 480px;
-            background: rgba(255, 255, 255, 0.226);
+            background: rgba(255, 255, 255, 0.308);
             padding: 16px;
             border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
+
         h2 {
             margin: 0;
             padding: 16px 0;
             text-align: center;
             font-size: 1.5rem;
+            color: #6200ea;
         }
+
         .mdc-text-field {
             width: 100%;
             margin-bottom: 16px;
         }
+
         .mdc-button {
             width: 100%;
             padding: 16px;
@@ -58,44 +89,32 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         .mdc-button--raised {
             background-color: #6200ea;
             color: white;
         }
+
         .mdc-button--raised:hover {
             background-color: #3700b3;
         }
-        /* Dark Theme Styles */
+
         @media (prefers-color-scheme: dark) {
             body {
                 background: url('https://images3.alphacoders.com/135/thumb-1920-1350069.jpeg') no-repeat center center fixed;
                 background-size: cover;
             }
             .container {
-                background: rgba(0, 0, 0, 0.26);
-            }
-            .mdc-text-field .mdc-text-field__input {
-                color: var(--text-color-dark);
-                background-color: rgba(255, 255, 255, 0.1);
-            }
-            .mdc-button--raised {
-                background-color: #bb86fc;
-            }
-            .mdc-button--raised:hover {
-                background-color: #3700b3;
+                background: rgba(0, 0, 0, 0.308);
             }
             h2, .mdc-text-field .mdc-text-field__input, .mdc-button {
-                color: var(--text-color-dark);
+                color: white;
             }
-        }
-        :root {
-            --text-color: #000;
-            --text-color-dark: #fff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container fade-in">
         <h2>Add New Task</h2>
         <div class="mdc-text-field mdc-text-field--outlined">
             <input type="text" id="taskInput" class="mdc-text-field__input" placeholder="Enter task">
@@ -111,23 +130,39 @@
     <!-- Material Design Components JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
     
-    <!-- JavaScript to handle task addition -->
+    <!-- JavaScript to handle task addition and page transitions -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener("DOMContentLoaded", function() {
+            document.body.classList.add("fade-in");
+
             const addTaskBtn = document.getElementById('addTaskBtn');
             const taskInput = document.getElementById('taskInput');
 
-            // Initialize Material Components
-            mdc.textField.MDCTextField.attachTo(document.querySelector('.mdc-text-field'));
-
             addTaskBtn.addEventListener('click', function() {
-                const taskText = taskInput.value.trim();
-                if (taskText) {
-                    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-                    tasks.push({ text: taskText, completed: false });
-                    localStorage.setItem('tasks', JSON.stringify(tasks));
-                    window.location.href = 'index.html'; // Redirect back to the main page
+                const task = taskInput.value.trim();
+                if (task) {
+                    localStorage.setItem('newTask', task);
+                    document.body.classList.remove("fade-in");
+                    document.body.classList.add("fade-out");
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 500);
                 }
+            });
+
+            const links = document.querySelectorAll("a");
+            links.forEach(link => {
+                link.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    const targetUrl = this.href;
+                    document.body.classList.remove("fade-in");
+                    document.body.classList.add("fade-out");
+
+                    setTimeout(() => {
+                        window.location.href = targetUrl;
+                    }, 500);
+                });
             });
         });
     </script>
